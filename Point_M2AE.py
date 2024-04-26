@@ -16,7 +16,7 @@ def save_point_clouds(original_pts, reconstructed_pts, i):
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(pc.detach().cpu().numpy().reshape(-1, 3))
 
-        ply_filename = f'/home/ongoing/pointmae_reconstructions/{name}_points_i_{i}.ply'
+        ply_filename = f'./pointmae_reconstructions/{name}_points_i_{i}.ply'
         o3d.io.write_point_cloud(ply_filename, pcd)
         # print(f'{name} saved')
 
