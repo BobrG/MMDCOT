@@ -1,0 +1,3 @@
+[submodule "quiet-star"]
+	path = quiet-star
+	url = git@github.com:ezelikman/quiet-star.git
