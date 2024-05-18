@@ -1,0 +1,17 @@
+exp_name: 'exp_2_change_opt'
+output_dir: "/home/jovyan/shares/SR004.nfs2/druzhinina/MMDCOT/training/results"
+n_epochs: 20
+n_iters: 1000000
+test_iters_period: 1000
+ckp_save_period: 100000
+grad_accum: 128
+batch_size: 1
+batch_size_val: 1
+learning_rate: 1e-4
+device: 'cuda:0'
+seed: 42
+exec_mode: 'train'
+patience: 10
+weight_decay: 0.0001
+ckpt_path: 
+devices: 1
