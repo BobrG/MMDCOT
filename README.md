@@ -16,3 +16,9 @@ For all experiment please clone this repo: ```git clone https://github.com/BobrG
       ```
   4. Now you are able to visualize reconstructions and original data, stored in /path/to/Point-M2AE/pointmae_reconstructions as plys via i.e meshlab.
   
+
+### 3D Dataset experiments
+
+* Dataset preparation:
+  Please find explanations on how to prepare dataset [here](https://github.com/BobrG/MMDCOT/tree/main/dataset#readme).
+* 
