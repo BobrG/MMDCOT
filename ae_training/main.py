@@ -12,9 +12,10 @@ from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint, early_stopping
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning import LightningDataModule
-from test.MMDCOT.training.pl_model import VQ_VAE
+from pl_model import VQ_VAE
 from models import CLIPVisionTower
 from omegaconf import OmegaConf
+
 
 # Custom Dataset class
 class MyDataset(Dataset):
