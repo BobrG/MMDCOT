@@ -55,33 +55,41 @@ def process_point_cloud(pc, mask, num_samples=2048):
     return normalized_pc
 
 def process_object(dataset_path, object_name):
-    depth_filename = os.path.join(dataset_path, 'addons', object_name, 'proj_depth', 'stl.clean_rec.aa@tis_right.undist', '0000.png')
-    cam_filename = os.path.join(dataset_path, 'addons', object_name, 'tis_right', 'rgb', 'mvsnet_input', '00000000_cam.txt')
-    
-    if not os.path.exists(depth_filename) or not os.path.exists(cam_filename):
-        print(f"Files for {object_name} not found, skipping.")
-        return
+    depth_dir = os.path.join(dataset_path, 'addons', object_name, 'proj_depth', 'stl.clean_rec.aa@tis_right.undist')
+    cam_dir = os.path.join(dataset_path, 'addons', object_name, 'tis_right', 'rgb', 'mvsnet_input')
+    output_dir = os.path.join(dataset_path, 'point_clouds', object_name)
+    os.makedirs(output_dir, exist_ok=True)
 
-    depth = torch.FloatTensor(unpack_float32(np.asarray(Image.open(depth_filename))).copy())
-    mask = (depth >= 0).to(torch.float32)
-    depth = depth.where(mask != 0, depth.new_tensor(0))
+    for i in range(100):
+        depth_filename = os.path.join(depth_dir, f'{i:04d}.png')
+        cam_filename = os.path.join(cam_dir, f'{i:08d}_cam.txt')
+        
+        if not os.path.exists(depth_filename) or not os.path.exists(cam_filename):
+            print(f"Files for index {i} not found, skipping.")
+            continue
+        
+        depth = torch.FloatTensor(unpack_float32(np.asarray(Image.open(depth_filename))).copy())
+        mask = (depth >= 0).to(torch.float32)
+        depth = depth.where(mask != 0, depth.new_tensor(0))
 
-    extrinsics, intrinsics = load_cam(cam_filename)
-    crop_coords = [601, 1952, 291, 1887]
-    new_hw = [576, 768]
-    depth, intrinsics = crop_and_resize(depth, intrinsics, crop_coords, new_hw)
-    mask = (depth != 0)
+        extrinsics, intrinsics = load_cam(cam_filename)
+        # crop the ROI with the object and resize
+        crop_coords = [601, 1952, 291, 1887]
+        new_hw = [576, 768]
+        depth, intrinsics = crop_and_resize(depth, intrinsics, crop_coords, new_hw)
+        mask = (depth != 0)
 
-    pc = depth_to_absolute_coordinates(depth.unsqueeze(0), 'orthogonal', intrinsics.unsqueeze(0)).reshape(3, -1)
-    pc = (extrinsics.inverse() @ torch.cat((pc, torch.ones(1, pc.shape[1])), dim=0))[:-1].detach().cpu().numpy().T
+        pc = depth_to_absolute_coordinates(depth.unsqueeze(0), 'orthogonal', intrinsics.unsqueeze(0)).reshape(3, -1)
+        pc = (extrinsics.inverse() @ torch.cat((pc, torch.ones(1, pc.shape[1])), dim=0))[:-1].detach().cpu().numpy().T
 
-    pc = process_point_cloud(pc, mask.reshape(-1), num_samples=2048)
-    pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(pc)
+        pc = process_point_cloud(pc, mask.reshape(-1), num_samples=2048)
+        
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(pc)
 
-    ply_filename = os.path.join(dataset_path, 'point_clouds', f'{object_name}_pc.ply')
-    o3d.io.write_point_cloud(ply_filename, pcd)
-    print(f"Processed {object_name}, saved to {ply_filename}")
+        ply_filename = os.path.join(output_dir, f'{object_name}_{i:04d}_pc.ply')
+        o3d.io.write_point_cloud(ply_filename, pcd)
+        print(f"Processed index {i}, saved to {ply_filename}")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process objects to generate point clouds.')
@@ -93,6 +101,8 @@ if __name__ == '__main__':
     os.makedirs(os.path.join(dataset_path, 'point_clouds'), exist_ok=True)
     objects_dir = os.path.join(dataset_path, 'addons')
     object_names = [name for name in os.listdir(objects_dir) if os.path.isdir(os.path.join(objects_dir, name))]
-
+    
     for object_name in object_names:
-        process_object(dataset_path, object_name)
+        print(f'Processing {object_name}')
+        if object_name != 'calibration':
+            process_object(dataset_path, object_name)
