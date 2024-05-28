@@ -20,7 +20,7 @@ For all experiment please clone this repo: ```git clone https://github.com/BobrG
 ### 3D Dataset experiments
 
 * Dataset preparation:
-  Please find explanations on how to prepare dataset [here]([https://github.com/BobrG/MMDCOT/tree/main/dataset#readme](https://github.com/BobrG/MMDCOT/blob/main/ae_training/dataset/README.md)).
+  Please find explanations on how to prepare dataset [here](https://github.com/BobrG/MMDCOT/tree/main/dataset#readme).
 * 
 
 ### Trainig and Fine-Tuning
