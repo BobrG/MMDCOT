@@ -87,9 +87,14 @@ def process_object(dataset_path, object_name):
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(pc)
 
+<<<<<<< HEAD:training/dataset/generate_points.py
         ply_filename = os.path.join(output_dir, f'{i:04d}_pc.npy')
         # o3d.io.write_point_cloud(ply_filename, pcd)
         np.save(ply_filename, pc)
+=======
+        ply_filename = os.path.join(output_dir, f'{object_name}_{i:04d}_pc.ply')
+        o3d.io.write_point_cloud(ply_filename, pcd)
+>>>>>>> e67aa09bff39ac125174ad4e056305393bec7868:dataset/generate_points.py
         print(f"Processed index {i}, saved to {ply_filename}")
 
 if __name__ == '__main__':

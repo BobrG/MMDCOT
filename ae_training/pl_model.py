@@ -18,7 +18,8 @@ from models import CLIPVisionTower
 import wandb
 nltk.download('punkt')
 
-
+hf_hub_download(repo_id="AIRI-Institute/OmniFusion", filename="OmniMistral-v1_1/projection.pt", local_dir='./')
+hf_hub_download(repo_id="AIRI-Institute/OmniFusion", filename="models.py", local_dir='./')
         
 
 class VQ_VAE(pl.LightningModule):
@@ -41,7 +42,7 @@ class VQ_VAE(pl.LightningModule):
         self.clip = CLIPVisionTower("openai/clip-vit-large-patch14-336")
         self.clip.load_model()
 
-        self.model_ae = diffusers.VQModel(1, 1)
+        self.model_ae = diffusers.VQModel(1, 1,vq_embed_dim= 1, scaling_factor=cfg.scaling_factor)
         self.reconstruction_loss = nn.CrossEntropyLoss()
 
 
@@ -102,27 +103,7 @@ class VQ_VAE(pl.LightningModule):
         self.log("val_loss", loss)
         self.log("val_reconst_loss", reconst_loss)
         self.log("val_vq_loss", vq_loss)
-
-    
-    # def predict_step(self, batch, batch_idx, dataloader_idx=0):
-    #     imgs = batch["img"]
-    #     post_trans = self.trainer.datamodule.post_transforms
-    #     trans = self.trainer.datamodule.transforms['predict']
-
-    #     # (1) inference & post transformations:
-    #     preds = self.model(imgs)
-    #     preds = post_trans(preds)
-    #     preds_in = {"seg": preds}
-    #     preds_in["seg"].applied_operations = imgs.applied_operations
-
-    #     with allow_missing_keys_mode(trans):
-    #         # inverting masks and preds to original format and dimensions:
-    #         inverted_preds = trans.inverse(preds_in)
-
-    #     output = {'preds': inverted_preds['seg'].cpu(),
-    #               'imgs_names': batch['img_meta_dict']['filename_or_obj']}
-    #     return output
-    
+   
 
     def configure_optimizers(self):
         optimizer =  optim.AdamW(self.model_ae.parameters(), lr=self.learning_rate, weight_decay=self.cfg.weight_decay)
