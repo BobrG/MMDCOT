@@ -8,5 +8,5 @@ Once you downloaded main part of the dataset you need to convert depth maps to p
 python generate_points.py /path/to/dir/
 ```
 
-To generate text data please use ipynb notebook or download predownloaded portion of data [here](disk.google.com). 
+To generate text data please use ipynb notebook or download predownloaded portion of data [here](https://drive.google.com/file/d/1PSwf8ApCZuunEcnRerku4U8nLaDpolo0/view?usp=sharing). 
 For generationg of the text data from scratch you will require OpenAI API key.
