@@ -15,7 +15,7 @@ from pytorch_lightning import LightningDataModule
 from pl_model import VQ_VAE
 from models import CLIPVisionTower
 from omegaconf import OmegaConf
-
+from dataset.sk3d_dataset import Sk3DDataset
 
 # Custom Dataset class
 class MyDataset(Dataset):
@@ -52,11 +52,14 @@ class DataModule(LightningDataModule):
         self.img_folder = 'images'
 
     def setup(self, stage: str):
-        sub_folder_dict = {'fit': 'train', 'test': 'test', 'validate': 'validation'}
-        dataset_science = load_dataset("cnut1648/ScienceQA-LLAVA")
-        for stage, mode in sub_folder_dict.items():
-            
-            self.ds[mode] = MyDataset(dataset_science[mode])
+        if self.args.data_3d:
+            self.ds['train'] = Sk3DDataset(self.args.root_dir)
+        else:
+            sub_folder_dict = {'fit': 'train', 'test': 'test', 'validate': 'validation'}
+            dataset_science = load_dataset("cnut1648/ScienceQA-LLAVA")
+            for stage, mode in sub_folder_dict.items():
+                
+                self.ds[mode] = MyDataset(dataset_science[mode])
     def train_dataloader(self):
         # noinspection PyTypeChecker
         return DataLoader(self.ds['train'], batch_size=self.args.batch_size, shuffle=True, num_workers=8, pin_memory=torch.cuda.is_available(), )

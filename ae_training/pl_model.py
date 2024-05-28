@@ -65,10 +65,35 @@ class VQ_VAE(pl.LightningModule):
         embeddings2 = text_embeddings.repeat(bs,1,1)
         embeddings = torch.cat([embeddings1, embeddings2], dim=1)
         return embeddings
+    
+    def prepare_embedings_3d(self, batch, ):
+        query, vision_embs, point_embs, answer = batch
+        caption_ids = list(self.tokenizer.encode(answer, add_special_tokens=False))
+        caption_ids = torch.tensor(caption_ids, dtype=torch.long, device=self.device)
+        user_query_ids = self.tokenizer.encode(query, add_special_tokens=False, return_tensors="pt").to(self.device)
+        projected_vision_embs = self.projection(vision_embs[0])
+        text_embeddings = self.model.model.embed_tokens(caption_ids)
+        prompt_embeddings = self.model.model.embed_tokens(user_query_ids)
+        bs = projected_vision_embs.shape[0]
+         
+        embeddings1 = torch.cat([
+                        point_embs,
+                        projected_vision_embs,
+                        prompt_embeddings
+                        ],
+                        dim=1)
+            
+        embeddings2 = text_embeddings.repeat(bs,1,1)
+        embeddings = torch.cat([embeddings1, embeddings2], dim=1)
+        return embeddings
+
 
                           
     def training_step(self, batch, batch_idx):
-        embeddings = self.prepare_embedings(batch)
+        if self.cfg.data_3d:
+            embeddings = self.prepare_embedings_3d(batch)
+        else:
+            embeddings = self.prepare_embedings(batch)
         
         h = self.model_ae.encode(embeddings[None, ...].float()).latents
         _, vq_loss, _ = self.model_ae.quantize(h)
