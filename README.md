@@ -67,9 +67,6 @@ The training consists of two stages: (1) feature alignment stage: connecting a f
 deepspeed llava/train/train_mem.py --lora_enable True 
  ```
 
-<<<<<<< HEAD
  The example of this command you can find in the [script](https://github.com/PolinaDruzhinina/LLaVA/blob/main/scripts/finetune_lora.sh) 
- 
-=======
- 2. 
->>>>>>> 5cfd4a19b8495162613bc6b86168ab75b6656c37
+
+
